@@ -80,9 +80,19 @@
         <button class="tb" id="backBtn" aria-label="返回">←</button>
         <span class="project">UI-画布设计 / Motion Graph</span>
         <div class="top-right">
+          <div class="node-add-wrap">
+            <button class="tb add-node" id="addNodeBtn">＋ Add node</button>
+            <div class="node-menu" id="nodeMenu" hidden>
+              <button data-add-type="model"><span>◈</span><b>Model</b><small>模型输入</small></button>
+              <button data-add-type="prompt"><span>⌁</span><b>Prompt</b><small>文本条件</small></button>
+              <button data-add-type="sampler"><span>✦</span><b>Sampler</b><small>采样节点</small></button>
+              <button data-add-type="decode"><span>◇</span><b>Decode</b><small>解码输出</small></button>
+              <button data-add-type="preview"><span>▣</span><b>Preview</b><small>视频预览</small></button>
+              <button data-add-type="note"><span>≡</span><b>Note</b><small>自由备注</small></button>
+            </div>
+          </div>
           <button class="tb primary" id="modelBtn">Qwen ▾</button>
-          <button class="tb">◫</button>
-          <button class="tb" id="fitBtn">⌖</button>
+          <button class="tb" id="fitBtn" title="适配全部节点">⌖</button>
           <button class="tb" id="inspectTopBtn">☰</button>
         </div>
       </div>
@@ -92,56 +102,62 @@
         <button class="run active" id="liveBtn">Live glow</button>
       </div>
 
+      <div class="canvas-help">
+        <span>Drag empty space to pan</span><i></i><span>Wheel to zoom</span><i></i><span>Drag output → input to connect</span>
+      </div>
+
       <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-      <div class="canvas" id="canvas" tabindex="0" aria-label="节点画布">
+      <div class="canvas" id="canvas" tabindex="0" aria-label="节点无限画布">
         <div class="world" id="world">
-          <div class="ambient"></div>
-
-          <svg class="wires" viewBox="0 0 1280 800" aria-hidden="true">
+          <div class="ambient" id="ambient"></div>
+          <svg class="wires" id="wireLayer" aria-hidden="true">
             <defs>
               <linearGradient id="wireGrad" x1="0" x2="1">
                 <stop offset="0" stop-color="#5b3024"/>
                 <stop offset=".55" stop-color="#e36a3d"/>
                 <stop offset="1" stop-color="#ff9863"/>
               </linearGradient>
+              <filter id="wireGlow" x="-100%" y="-100%" width="300%" height="300%">
+                <feGaussianBlur stdDeviation="3" result="blur"/>
+                <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+              </filter>
             </defs>
-            <path class="wire hot" d="M197 213 C340 213 390 194 535 194"/>
-            <path class="wire" d="M197 245 C233 245 220 363 245 363"/>
-            <path class="wire" d="M465 365 C510 365 500 470 540 470"/>
-            <path class="wire" d="M465 535 C510 535 500 500 540 500"/>
-            <path class="wire live" id="liveWire" d="M760 473 C810 473 805 388 850 388"/>
-            <path class="wire" d="M770 212 C815 212 817 358 850 358"/>
-            <circle class="pulse" id="pulse" r="3.5" cx="760" cy="473"/>
+            <g id="connections"></g>
+            <path id="draftWire" class="wire draft" d="" hidden></path>
           </svg>
 
-          <section class="node model" data-node>
-            <div class="node-head"><span class="dot warm"></span>MODEL<span class="node-sub">01</span></div>
-            <span class="port right warm" style="top:39px"></span><span class="port right" style="top:88px"></span><span class="port right warm" style="top:118px"></span>
+          <section class="node model-node" data-node data-node-id="model-1" style="left:40px;top:170px">
+            <div class="node-head"><span class="dot warm"></span>MODEL<span class="node-sub">01</span><button class="node-more" aria-label="节点菜单">•••</button></div>
+            <button class="port out warm" data-port="model-out" data-dir="out" aria-label="Model output"></button>
             <div class="node-body">
-              <div class="row"><span>extensions</span><span class="value">›</span></div>
-              <div class="row"><span>default</span><span class="value">›</span></div>
-              <div class="row"><span>diffusion</span><span class="value">›</span></div>
+              <div class="row"><span>extensions</span><span class="value">default</span></div>
+              <div class="row"><span>precision</span><span class="value">fp16</span></div>
+              <div class="row"><span>device</span><span class="value">auto</span></div>
             </div>
           </section>
 
-          <section class="node load" data-node>
-            <div class="node-head"><span class="dot"></span>Load Diffusion Model<span class="node-sub">conditioning</span></div>
-            <span class="port left" style="top:57px"></span><span class="port right" style="top:57px"></span>
+          <section class="node load-node" data-node data-node-id="load-1" style="left:245px;top:330px">
+            <div class="node-head"><span class="dot"></span>Load Diffusion Model<span class="node-sub">conditioning</span><button class="node-more" aria-label="节点菜单">•••</button></div>
+            <button class="port in" data-port="load-in" data-dir="in" aria-label="Load input"></button>
+            <button class="port out" data-port="load-out" data-dir="out" aria-label="Load output"></button>
             <div class="node-body">High-fusion model, cinematic lighting, restrained motion, clean silhouette and controlled highlights.</div>
           </section>
 
-          <section class="node prompt" data-node>
-            <div class="node-head"><span class="dot"></span>Clip Text Encode<span class="node-sub">prompt</span></div>
-            <span class="port left" style="top:57px"></span><span class="port right" style="top:57px"></span>
+          <section class="node prompt-node" data-node data-node-id="prompt-1" style="left:245px;top:495px">
+            <div class="node-head"><span class="dot"></span>Clip Text Encode<span class="node-sub">prompt</span><button class="node-more" aria-label="节点菜单">•••</button></div>
+            <button class="port in" data-port="prompt-in" data-dir="in" aria-label="Prompt input"></button>
+            <button class="port out" data-port="prompt-out" data-dir="out" aria-label="Prompt output"></button>
             <div class="node-body">
               <div class="prompt-box" contenteditable="true">soft rim light, controlled bloom, dark neutral canvas, warm focal glow, no neon overload</div>
             </div>
           </section>
 
-          <section class="node sampler live-node" data-node>
-            <div class="node-head"><span class="dot warm"></span>KSampler<span class="node-sub">latent</span></div>
-            <span class="port left warm" style="top:39px"></span><span class="port left" style="top:63px"></span><span class="port left" style="top:87px"></span><span class="port right" style="top:68px"></span>
+          <section class="node sampler-node live-node" data-node data-node-id="sampler-1" style="left:545px;top:150px">
+            <div class="node-head"><span class="dot warm"></span>KSampler<span class="node-sub">latent</span><button class="node-more" aria-label="节点菜单">•••</button></div>
+            <button class="port in warm" data-port="sampler-model" data-dir="in" style="top:55px" aria-label="Sampler model input"></button>
+            <button class="port in" data-port="sampler-cond" data-dir="in" style="top:90px" aria-label="Sampler conditioning input"></button>
+            <button class="port out warm" data-port="sampler-out" data-dir="out" style="top:72px" aria-label="Sampler output"></button>
             <div class="node-body">
               <div class="row"><span>seed</span><span class="value">739030884848</span></div>
               <div class="row"><span>steps</span><span class="value">10</span></div>
@@ -151,18 +167,19 @@
             </div>
           </section>
 
-          <section class="node decode live-node" data-node>
-            <div class="node-head"><span class="dot warm"></span>VAE Decode<span class="node-sub">video</span></div>
-            <span class="port left warm" style="top:58px"></span><span class="port right warm" style="top:58px"></span>
+          <section class="node decode-node live-node" data-node data-node-id="decode-1" style="left:550px;top:440px">
+            <div class="node-head"><span class="dot warm"></span>VAE Decode<span class="node-sub">video</span><button class="node-more" aria-label="节点菜单">•••</button></div>
+            <button class="port in warm" data-port="decode-in" data-dir="in" aria-label="Decode input"></button>
+            <button class="port out warm" data-port="decode-out" data-dir="out" aria-label="Decode output"></button>
             <div class="node-body">
               <div class="row"><span>samples</span><span class="value">VIDEO</span></div>
               <div class="row"><span>vae</span><span class="value">Live 8</span></div>
             </div>
           </section>
 
-          <section class="node preview live-node" data-node>
-            <div class="node-head"><span class="dot warm"></span>Preview Video<span class="node-sub">output</span></div>
-            <span class="port left warm" style="top:58px"></span>
+          <section class="node preview-node live-node" data-node data-node-id="preview-1" style="left:870px;top:285px">
+            <div class="node-head"><span class="dot warm"></span>Preview Video<span class="node-sub">output</span><button class="node-more" aria-label="节点菜单">•••</button></div>
+            <button class="port in warm" data-port="preview-in" data-dir="in" aria-label="Preview input"></button>
             <div class="preview-media">
               <div class="media-top"><span id="avatarName">Kori Theme</span><span>♡</span></div>
               <div class="controls">
@@ -182,7 +199,7 @@
             </div>
           </section>
 
-          <div class="float-panel">
+          <div class="float-panel" id="floatPanel" style="left:650px;top:660px">
             <div class="tabs">
               <button class="active">Script</button><button>Emotions</button><button>Voiceover</button><button>Dynamics</button>
             </div>
@@ -191,10 +208,22 @@
         </div>
       </div>
 
+      <div class="selection-toolbar" id="selectionToolbar" hidden>
+        <span id="selectedLabel">Node</span>
+        <button id="duplicateNodeBtn">⧉ Duplicate</button>
+        <button id="deleteNodeBtn" class="danger">⌫ Delete</button>
+      </div>
+
       <div class="zoom">
         <button id="zoomOut">−</button>
         <span class="zoom-label" id="zoomLabel">82%</span>
         <button id="zoomIn">＋</button>
+      </div>
+
+      <div class="canvas-status">
+        <span id="nodeCount">6 nodes</span>
+        <span>·</span>
+        <span id="connectionCount">5 links</span>
       </div>
     </main>
 
@@ -205,14 +234,21 @@
           <div class="group-title">Glow hierarchy</div>
           <div class="field"><label><span>Global intensity</span><span id="glowVal">72%</span></label><input id="glowRange" type="range" min="0" max="100" value="72"></div>
           <div class="field"><label><span>Warm path bloom</span><span id="pathVal">58%</span></label><input id="pathRange" type="range" min="0" max="100" value="58"></div>
-          <div class="field"><label><span>Preview rim light</span><span>64%</span></label><input type="range" min="0" max="100" value="64"></div>
+          <div class="field"><label><span>Preview rim light</span><span id="rimVal">64%</span></label><input id="rimRange" type="range" min="0" max="100" value="64"></div>
         </div>
 
         <div class="group">
           <div class="group-title">Behavior</div>
-          <div class="switch-row"><span>Active node glow</span><button class="switch on" data-switch></button></div>
+          <div class="switch-row"><span>Active node glow</span><button class="switch on" data-switch id="nodeGlowSwitch"></button></div>
           <div class="switch-row"><span>Flow pulse</span><button class="switch on" data-switch id="pulseSwitch"></button></div>
           <div class="switch-row"><span>Ambient wash</span><button class="switch on" data-switch id="ambientSwitch"></button></div>
+        </div>
+
+        <div class="group">
+          <div class="group-title">Canvas</div>
+          <button class="inspector-action" id="resetViewBtn">Reset view</button>
+          <button class="inspector-action" id="clearConnectionsBtn">Clear links</button>
+          <button class="inspector-action danger" id="resetGraphBtn">Reset graph</button>
         </div>
 
         <div class="group">
@@ -220,11 +256,21 @@
           <div class="meter"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
         </div>
 
-        <div class="hint"><b>光效原则</b><br>只在状态、路径、端口和媒体焦点处出现。大面积区域保持低对比，避免“所有元素都发光”。</div>
+        <div class="hint"><b>光效原则</b><br>光只用于端口状态、激活路径与媒体焦点。连接时端口会增强发光，完成连接后回归克制状态。</div>
       </div>
     </aside>
   </div>
 </div>
+
+<template id="nodeTemplate">
+  <section class="node dynamic-node" data-node>
+    <div class="node-head"><span class="dot"></span><span class="node-title">Node</span><span class="node-sub">custom</span><button class="node-more" aria-label="节点菜单">•••</button></div>
+    <button class="port in" data-dir="in" aria-label="Input"></button>
+    <button class="port out" data-dir="out" aria-label="Output"></button>
+    <div class="node-body dynamic-body"></div>
+  </section>
+</template>
+
 <script src="./app.js"></script>
 </body>
 </html>
