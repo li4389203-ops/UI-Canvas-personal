@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="robots" content="noindex,nofollow,noarchive,nosnippet,noimageindex">
+  <meta name="googlebot" content="noindex,nofollow,noarchive,nosnippet,noimageindex">
+  <meta name="referrer" content="no-referrer">
+  <meta name="theme-color" content="#08090b">
+  <title>Workspace</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+<div class="app">
+  <div class="shell" id="shell">
+    <nav class="rail" aria-label="主导航">
+      <div class="brand">◆</div>
+      <button class="ib" id="assetsBtn" aria-label="资源">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 7h16v12H4z"/><path d="M8 7V5h8v2"/></svg>
+      </button>
+      <button class="ib active" aria-label="画布">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="4" y="5" width="16" height="14" rx="3"/><path d="m10 9 5 3-5 3z"/></svg>
+      </button>
+      <button class="ib" aria-label="消息">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 5h16v12H8l-4 3z"/></svg>
+      </button>
+      <button class="ib" aria-label="文件">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 6h6l2 2h8v10H4z"/></svg>
+      </button>
+      <div class="grow"></div>
+      <button class="ib" id="glowQuick" aria-label="光效强度">✦</button>
+      <button class="ib" id="inspectBtn" aria-label="检查器">⚙</button>
+    </nav>
+
+    <aside class="sidebar">
+      <div class="search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+        <input id="search" placeholder="Search assets / models">
+      </div>
+      <div class="side-scroll">
+        <div class="eyebrow">Project assets</div>
+        <div class="folder">
+          <button class="folder-head" data-folder>
+            <span class="folder-mark"></span><span>Greeting Sequences</span><span class="count">2</span><span class="chev">⌃</span>
+          </button>
+          <div class="folder-body">
+            <button class="asset selected" data-asset>FrontWalk_Take01.mp4</button>
+            <button class="asset" data-asset>Pose_Keyframe_01.png</button>
+          </div>
+        </div>
+        <div class="folder">
+          <button class="folder-head" data-folder>
+            <span class="folder-mark neutral"></span><span>Studio Monologue</span><span class="count">1</span><span class="chev">⌄</span>
+          </button>
+          <div class="folder-body" hidden>
+            <button class="asset" data-asset>Monologue_Take02.mp4</button>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="eyebrow">AI Influencers</div>
+          <div class="people">
+            <button class="person" data-person="Elena"><span class="person-name">Elena</span><span class="person-tag">High Fashion</span><span class="portrait"></span></button>
+            <button class="person" data-person="Marcus"><span class="person-name">Marcus</span><span class="person-tag">Cyberpunk</span><span class="portrait mono"></span></button>
+            <button class="person active" data-person="Kori Theme"><span class="person-name">Kori Theme</span><span class="person-tag">Streetwear</span><span class="portrait warm"></span></button>
+            <button class="person" data-person="Aiko"><span class="person-name">Aiko</span><span class="person-tag">Fitness & Sport</span><span class="portrait cool"></span></button>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="eyebrow">Connected models</div>
+          <div class="service"><span class="service-orb"></span><span>Gemini<small>3.1 PRO</small></span><button data-connect>Connect</button></div>
+          <div class="service"><span class="service-orb alt"></span><span>Kling<small>VIDEO 3.0</small></span><button data-connect>On</button></div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <div class="topbar">
+        <button class="tb" id="backBtn" aria-label="返回">←</button>
+        <span class="project">UI-画布设计 / Motion Graph</span>
+        <div class="top-right">
+          <button class="tb primary" id="modelBtn">Qwen ▾</button>
+          <button class="tb">◫</button>
+          <button class="tb" id="fitBtn">⌖</button>
+          <button class="tb" id="inspectTopBtn">☰</button>
+        </div>
+      </div>
+
+      <div class="runbar">
+        <button class="run" id="flowBtn">Run flow</button>
+        <button class="run active" id="liveBtn">Live glow</button>
+      </div>
+
+      <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+      <div class="canvas" id="canvas" tabindex="0" aria-label="节点画布">
+        <div class="world" id="world">
+          <div class="ambient"></div>
+
+          <svg class="wires" viewBox="0 0 1280 800" aria-hidden="true">
+            <defs>
+              <linearGradient id="wireGrad" x1="0" x2="1">
+                <stop offset="0" stop-color="#5b3024"/>
+                <stop offset=".55" stop-color="#e36a3d"/>
+                <stop offset="1" stop-color="#ff9863"/>
+              </linearGradient>
+            </defs>
+            <path class="wire hot" d="M197 213 C340 213 390 194 535 194"/>
+            <path class="wire" d="M197 245 C233 245 220 363 245 363"/>
+            <path class="wire" d="M465 365 C510 365 500 470 540 470"/>
+            <path class="wire" d="M465 535 C510 535 500 500 540 500"/>
+            <path class="wire live" id="liveWire" d="M760 473 C810 473 805 388 850 388"/>
+            <path class="wire" d="M770 212 C815 212 817 358 850 358"/>
+            <circle class="pulse" id="pulse" r="3.5" cx="760" cy="473"/>
+          </svg>
+
+          <section class="node model" data-node>
+            <div class="node-head"><span class="dot warm"></span>MODEL<span class="node-sub">01</span></div>
+            <span class="port right warm" style="top:39px"></span><span class="port right" style="top:88px"></span><span class="port right warm" style="top:118px"></span>
+            <div class="node-body">
+              <div class="row"><span>extensions</span><span class="value">›</span></div>
+              <div class="row"><span>default</span><span class="value">›</span></div>
+              <div class="row"><span>diffusion</span><span class="value">›</span></div>
+            </div>
+          </section>
+
+          <section class="node load" data-node>
+            <div class="node-head"><span class="dot"></span>Load Diffusion Model<span class="node-sub">conditioning</span></div>
+            <span class="port left" style="top:57px"></span><span class="port right" style="top:57px"></span>
+            <div class="node-body">High-fusion model, cinematic lighting, restrained motion, clean silhouette and controlled highlights.</div>
+          </section>
+
+          <section class="node prompt" data-node>
+            <div class="node-head"><span class="dot"></span>Clip Text Encode<span class="node-sub">prompt</span></div>
+            <span class="port left" style="top:57px"></span><span class="port right" style="top:57px"></span>
+            <div class="node-body">
+              <div class="prompt-box" contenteditable="true">soft rim light, controlled bloom, dark neutral canvas, warm focal glow, no neon overload</div>
+            </div>
+          </section>
+
+          <section class="node sampler live-node" data-node>
+            <div class="node-head"><span class="dot warm"></span>KSampler<span class="node-sub">latent</span></div>
+            <span class="port left warm" style="top:39px"></span><span class="port left" style="top:63px"></span><span class="port left" style="top:87px"></span><span class="port right" style="top:68px"></span>
+            <div class="node-body">
+              <div class="row"><span>seed</span><span class="value">739030884848</span></div>
+              <div class="row"><span>steps</span><span class="value">10</span></div>
+              <div class="row"><span>cfg</span><span class="value">1.0</span></div>
+              <div class="row"><span>sampler</span><span class="value">euler</span></div>
+              <div class="row"><span>scheduler</span><span class="value">simple</span></div>
+            </div>
+          </section>
+
+          <section class="node decode live-node" data-node>
+            <div class="node-head"><span class="dot warm"></span>VAE Decode<span class="node-sub">video</span></div>
+            <span class="port left warm" style="top:58px"></span><span class="port right warm" style="top:58px"></span>
+            <div class="node-body">
+              <div class="row"><span>samples</span><span class="value">VIDEO</span></div>
+              <div class="row"><span>vae</span><span class="value">Live 8</span></div>
+            </div>
+          </section>
+
+          <section class="node preview live-node" data-node>
+            <div class="node-head"><span class="dot warm"></span>Preview Video<span class="node-sub">output</span></div>
+            <span class="port left warm" style="top:58px"></span>
+            <div class="preview-media">
+              <div class="media-top"><span id="avatarName">Kori Theme</span><span>♡</span></div>
+              <div class="controls">
+                <button class="round" data-skip="-10">‹</button>
+                <button class="round" id="playBtn">▶</button>
+                <button class="round" data-skip="10">›</button>
+              </div>
+              <div class="timeline">
+                <div class="times"><span id="timeNow">0:40</span><span>1:32</span></div>
+                <div class="bar"><div class="fill" id="fill"></div></div>
+              </div>
+            </div>
+            <div class="preview-actions">
+              <button class="act main" data-msg="Upscale queued">⌁ Upscale</button>
+              <button class="act" data-msg="Duplicated">⧉</button>
+              <button class="act" data-msg="Preview settings">◉</button>
+            </div>
+          </section>
+
+          <div class="float-panel">
+            <div class="tabs">
+              <button class="active">Script</button><button>Emotions</button><button>Voiceover</button><button>Dynamics</button>
+            </div>
+            <textarea>Blurry, low resolution, distorted facial features, unnatural motion, extra limbs, excessive bloom, neon oversaturation</textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="zoom">
+        <button id="zoomOut">−</button>
+        <span class="zoom-label" id="zoomLabel">82%</span>
+        <button id="zoomIn">＋</button>
+      </div>
+    </main>
+
+    <aside class="inspector">
+      <div class="inspector-head"><strong>Light System</strong><span class="status-pill">Focus only</span></div>
+      <div class="inspector-scroll">
+        <div class="group">
+          <div class="group-title">Glow hierarchy</div>
+          <div class="field"><label><span>Global intensity</span><span id="glowVal">72%</span></label><input id="glowRange" type="range" min="0" max="100" value="72"></div>
+          <div class="field"><label><span>Warm path bloom</span><span id="pathVal">58%</span></label><input id="pathRange" type="range" min="0" max="100" value="58"></div>
+          <div class="field"><label><span>Preview rim light</span><span>64%</span></label><input type="range" min="0" max="100" value="64"></div>
+        </div>
+
+        <div class="group">
+          <div class="group-title">Behavior</div>
+          <div class="switch-row"><span>Active node glow</span><button class="switch on" data-switch></button></div>
+          <div class="switch-row"><span>Flow pulse</span><button class="switch on" data-switch id="pulseSwitch"></button></div>
+          <div class="switch-row"><span>Ambient wash</span><button class="switch on" data-switch id="ambientSwitch"></button></div>
+        </div>
+
+        <div class="group">
+          <div class="group-title">Signal</div>
+          <div class="meter"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+        </div>
+
+        <div class="hint"><b>光效原则</b><br>只在状态、路径、端口和媒体焦点处出现。大面积区域保持低对比，避免“所有元素都发光”。</div>
+      </div>
+    </aside>
+  </div>
+</div>
+<script src="./app.js"></script>
+</body>
+</html>
